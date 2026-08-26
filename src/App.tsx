@@ -2040,7 +2040,7 @@ export default function App() {
                             target="_blank"
                             rel="noreferrer"
                             href={googleMapsDirectionsUrl(office.mapQuery, selectedProfile?.homeAddress)}
-                            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#243078] px-5 py-3 text-sm font-bold text-white hover:bg-[#258c3b] transition-all"
+                            className="my-day-directions-button inline-flex items-center justify-center gap-2 rounded-full bg-[#243078] px-5 py-3 text-sm font-bold text-white hover:bg-[#258c3b] transition-all"
                           >
                             <Navigation className="w-4 h-4" />
                             Directions
