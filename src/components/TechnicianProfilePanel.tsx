@@ -25,10 +25,22 @@ const MAP_BOUNDS = {
   east: -70.98,
 };
 
+const AREA_MAP_URL = 'https://www.google.com/maps?q=42.63,-71.36&z=9&output=embed';
+
+const toRadians = (degrees: number) => degrees * Math.PI / 180;
+
+const toDegrees = (radians: number) => radians * 180 / Math.PI;
+
+const latToMercator = (lat: number) => Math.log(Math.tan(Math.PI / 4 + toRadians(lat) / 2));
+
+const mercatorToLat = (value: number) => toDegrees(2 * Math.atan(Math.exp(value)) - Math.PI / 2);
+
 function pinToPosition(pin: Coordinates) {
+  const north = latToMercator(MAP_BOUNDS.north);
+  const south = latToMercator(MAP_BOUNDS.south);
   return {
     left: `${((pin.lng - MAP_BOUNDS.west) / (MAP_BOUNDS.east - MAP_BOUNDS.west)) * 100}%`,
-    top: `${((MAP_BOUNDS.north - pin.lat) / (MAP_BOUNDS.north - MAP_BOUNDS.south)) * 100}%`,
+    top: `${((north - latToMercator(pin.lat)) / (north - south)) * 100}%`,
   };
 }
 
@@ -36,8 +48,10 @@ function positionToPin(event: MouseEvent<HTMLDivElement> | PointerEvent<HTMLDivE
   const rect = event.currentTarget.getBoundingClientRect();
   const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
   const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+  const north = latToMercator(MAP_BOUNDS.north);
+  const south = latToMercator(MAP_BOUNDS.south);
   return {
-    lat: MAP_BOUNDS.north - (y * (MAP_BOUNDS.north - MAP_BOUNDS.south)),
+    lat: mercatorToLat(north - (y * (north - south))),
     lng: MAP_BOUNDS.west + (x * (MAP_BOUNDS.east - MAP_BOUNDS.west)),
   };
 }
@@ -94,6 +108,10 @@ export function TechnicianProfilePanel({ initials, ownerUid, profile, onClose, o
     setMiles(calculateOfficeCommutes(homePin));
   };
 
+  const mapUrl = homePin
+    ? `https://www.google.com/maps?q=${homePin.lat},${homePin.lng}&z=10&output=embed`
+    : AREA_MAP_URL;
+
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
       <button aria-label="Close profile" onClick={onClose} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
@@ -124,8 +142,15 @@ export function TechnicianProfilePanel({ initials, ownerUid, profile, onClose, o
             }}
             className="relative h-72 overflow-hidden rounded-2xl border border-white/10 bg-[#152033] cursor-crosshair"
           >
-            <div className="absolute inset-0 opacity-60 bg-[linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px)] bg-[size:48px_48px]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_48%,rgba(77,148,255,.25),transparent_28%),radial-gradient(circle_at_66%_32%,rgba(77,255,136,.2),transparent_24%)]" />
+            <iframe
+              title="Spindel office area map"
+              src={mapUrl}
+              className="absolute inset-0 h-full w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              style={{ pointerEvents: 'none' }}
+            />
+            <div className="absolute inset-0 bg-black/5" />
             {OFFICE_LOCATIONS.map(office => {
               const position = pinToPosition(OFFICE_COORDINATES[office.id]);
               return (
