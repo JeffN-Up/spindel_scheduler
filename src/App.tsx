@@ -149,10 +149,14 @@ const weekLabel = (weekOffset: number) => {
   return `${format(start, 'M/d')} - ${format(addDays(start, 5), 'M/d')}`;
 };
 
-const CURRENT_SCHEDULE_GID = '571129886';
+const SPREADSHEET_ID = '10MTeD3grwqFyr4Odug3VQAih-8115_YVYlBNne2HzA0';
+const CURRENT_SCHEDULE_GID = '2063860995';
+const LIVE_SPREADSHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit?gid=${CURRENT_SCHEDULE_GID}#gid=${CURRENT_SCHEDULE_GID}`;
+const SHEET_EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit?usp=sharing`;
+const SPINDEL_LOGO_URL = `${import.meta.env.BASE_URL}spindel-eye-associates-logo.jpg`;
 
 const WEEKS = [
-  { id: 'current', label: `Current Week · ${format(TODAY, 'M/d/yy')}`, gid: '0' },
+  { id: 'current', label: `Current Week · ${format(TODAY, 'M/d/yy')}`, gid: CURRENT_SCHEDULE_GID },
   { id: 'week2', label: weekLabel(1), gid: '11223344' }, // Placeholder GIDs
   { id: 'week3', label: weekLabel(2), gid: '55667788' },
   { id: 'saturdays', label: 'Saturdays', gid: '99001122' },
@@ -454,12 +458,6 @@ const INITIAL_WEEK_DATA: SheetDaySchedule[] = INITIAL_WEEK_TEMPLATE.map((day, in
   date: format(addDays(CURRENT_WEEK_START, index), 'M/d/yy'),
 }));
 
-const CURRENT_WEEK_DAY_INDEX = new Map(INITIAL_WEEK_DATA.map((day, index) => [day.dayName.toLowerCase(), index]));
-const withCurrentWeekDate = (day: SheetDaySchedule): SheetDaySchedule => {
-  const dayIndex = CURRENT_WEEK_DAY_INDEX.get(day.dayName.toLowerCase());
-  return dayIndex === undefined ? day : { ...day, date: format(addDays(CURRENT_WEEK_START, dayIndex), 'M/d/yy') };
-};
-
 interface StaffCardProps {
   assignment: SheetAssignment;
   loc: any;
@@ -692,7 +690,7 @@ export default function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sheetUrl, setSheetUrl] = useState(localStorage.getItem('sheetUrl') || 'https://docs.google.com/spreadsheets/d/10MTeD3grwqFyr4Odug3VQAih-8115_YVYlBNne2HzA0/edit?usp=sharing');
+  const [sheetUrl, setSheetUrl] = useState(localStorage.getItem('sheetUrl') || SHEET_EXPORT_URL);
   const [weekGids, setWeekGids] = useState<Record<string, string>>(() => {
     const saved = localStorage.getItem('weekGids');
     const parsed = saved ? JSON.parse(saved) : {};
@@ -1223,7 +1221,7 @@ export default function App() {
     const unsubscribe = onSnapshot(doc(db, 'schedules', scheduleId), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data() as SheetDaySchedule;
-        setSchedule(selectedWeek.id === 'current' ? withCurrentWeekDate(data) : data);
+        setSchedule(data);
       }
     }, (err) => {
       console.error(`Failed to load schedule ${scheduleId}:`, err);
@@ -1246,7 +1244,7 @@ export default function App() {
       const gid = weekGids[selectedWeek.id] || selectedWeek.gid;
       const data = await fetchSheetData(sheetUrl, gid);
       if (data.length > 0) {
-        const datedData = selectedWeek.id === 'current' ? data.map(withCurrentWeekDate) : data;
+        const datedData = data;
         setAllSchedules(datedData);
         // Auto-select today if possible
         const today = new Date().getDay(); // 0 is Sunday, 1 is Monday
@@ -1479,11 +1477,24 @@ export default function App() {
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-md w-full bg-white border border-[#dce1eb] p-10 rounded-3xl text-center relative z-10 shadow-[0_24px_70px_rgba(36,48,120,0.14)]"
         >
-          <div className="w-20 h-20 bg-[#243078] rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
-            <LayoutDashboard className="w-10 h-10 text-white" />
+          <div className="w-full flex justify-center mb-8">
+            <img
+              src={SPINDEL_LOGO_URL}
+              alt="Spindel Eye Associates"
+              className="h-16 w-auto max-w-full rounded-2xl bg-white object-contain shadow-lg"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-[var(--text)] mb-3 tracking-tight">Spindel Scheduler</h1>
+          <h1 className="text-3xl font-bold text-[var(--text)] mb-3 tracking-tight">Spindel Eye Associates Scheduler</h1>
           <p className="text-[var(--text-muted)] mb-8 text-sm leading-relaxed">Choose the right workspace for today.</p>
+          <a
+            href={LIVE_SPREADSHEET_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="mb-6 inline-flex items-center justify-center gap-2 text-xs font-bold text-[#243078] hover:text-[#258c3b] transition-colors"
+          >
+            <LinkIcon className="w-3.5 h-3.5" />
+            Live Spreadsheet
+          </a>
           <div className="space-y-4">
             <button
               type="button"
@@ -1544,9 +1555,9 @@ export default function App() {
       <nav className="brand-nav fixed left-0 right-0 top-0 h-16 md:h-20 bg-[#243078] text-white flex items-center px-3 md:px-8 gap-2 md:gap-8 z-50 shadow-[0_6px_24px_rgba(36,48,120,0.18)]">
         <motion.div 
           whileHover={{ scale: 1.05 }}
-          className="hidden md:flex w-10 h-10 md:w-12 md:h-12 bg-white rounded-full items-center justify-center shadow-lg cursor-pointer shrink-0"
+          className="hidden md:flex h-12 w-44 bg-white rounded-2xl items-center justify-center shadow-lg cursor-pointer shrink-0 px-3"
         >
-          <LayoutDashboard className="w-5 h-5 md:w-6 md:h-6 text-[#243078]" />
+          <img src={SPINDEL_LOGO_URL} alt="Spindel Eye Associates" className="max-h-9 w-full object-contain" />
         </motion.div>
         
         <div className="flex-1 flex items-center gap-3">
@@ -1636,6 +1647,11 @@ export default function App() {
       <main className="brand-main pt-20 md:pt-28 px-4 md:px-8 pb-10 max-w-[2400px] mx-auto min-h-screen flex flex-col text-[#243078]">
         <header className="mobile-hero flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6 bg-white border border-[#dce1eb] rounded-3xl p-7 shadow-[0_8px_24px_rgba(36,48,120,0.06)]">
           <div className="space-y-3">
+            <img
+              src={SPINDEL_LOGO_URL}
+              alt="Spindel Eye Associates"
+              className="h-12 w-auto max-w-full rounded-xl object-contain"
+            />
             <div className="flex items-center gap-3">
               <span className="px-2 py-0.5 bg-[var(--accent-muted)] text-[var(--accent)] text-[0.5rem] font-bold rounded border border-[var(--accent-muted)] tracking-widest uppercase">
                 {viewMode === 'admin' ? 'Admin Access' : viewMode === 'myday' ? 'My Day' : 'Technician View'}
@@ -1643,15 +1659,15 @@ export default function App() {
               <span className="text-[0.65rem] text-[var(--text-muted)] tracking-[0.08em]">Thoughtful scheduling for every team</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-semibold tracking-tight flex flex-wrap items-baseline gap-3 text-[#243078]">
-              {viewMode === 'admin' ? 'Spindel Scheduler' : viewMode === 'myday' ? 'My Day' : 'My Weekly Schedule'}
+              {viewMode === 'admin' ? 'Spindel Eye Associates Scheduler' : viewMode === 'myday' ? 'My Day' : 'My Weekly Schedule'}
               <span className="text-[#258c3b] text-xl font-medium">{selectedWeek.label}</span>
             </h1>
             <div className="flex items-center gap-4 text-[var(--text-muted)] font-mono text-xs">
-              <button 
-                onClick={() => window.open('https://docs.google.com/spreadsheets/d/10MTeD3grwqFyr4Odug3VQAih-8115_YVYlBNne2HzA0/edit?gid=1443435046#gid=1443435046', '_blank')}
+              <button
+                onClick={() => window.open(LIVE_SPREADSHEET_URL, '_blank')}
                 className="flex items-center gap-2 hover:text-[var(--text)] transition-colors"
               >
-                <Calendar className="w-3 h-3" /> WEEKLY_OVERVIEW
+                <LinkIcon className="w-3 h-3" /> Live Spreadsheet
               </button>
               <span className="w-1 h-1 bg-[var(--border)] rounded-full" />
               <span className="flex items-center gap-2 tracking-widest">{currentTime.toLocaleTimeString([], { hour12: false })}</span>

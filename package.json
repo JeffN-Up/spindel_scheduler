@@ -17,7 +17,8 @@
     "test:happy-schedule": "tsx tests/happyScheduleService.test.ts && tsx tests/commuteService.test.ts",
     "test:local-commands": "tsx tests/localCommandService.test.ts && tsx tests/shiftRuleService.test.ts && tsx tests/myDayService.test.ts",
     "test:mobile-shell": "tsx tests/mobileShell.test.ts",
-    "test": "pnpm run test:parser && pnpm run test:happy-schedule && pnpm run test:local-commands && pnpm run test:mobile-shell"
+    "test:app-shell": "tsx tests/appShell.test.ts",
+    "test": "pnpm run test:parser && pnpm run test:happy-schedule && pnpm run test:local-commands && pnpm run test:mobile-shell && pnpm run test:app-shell"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
