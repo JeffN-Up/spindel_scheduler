@@ -1613,9 +1613,9 @@ export default function App() {
       <nav className="brand-nav fixed left-0 right-0 top-0 h-16 md:h-20 bg-[#243078] text-white flex items-center px-3 md:px-8 gap-2 md:gap-8 z-50 shadow-[0_6px_24px_rgba(36,48,120,0.18)]">
         <motion.div 
           whileHover={{ scale: 1.05 }}
-          className="hidden md:flex h-12 w-44 bg-white rounded-2xl items-center justify-center shadow-lg cursor-pointer shrink-0 px-3"
+          className="nav-logo-lockup hidden md:flex h-[4.2rem] w-[15.4rem] bg-white rounded-2xl items-center justify-center shadow-lg cursor-pointer shrink-0 px-4"
         >
-          <img src={SPINDEL_LOGO_URL} alt="Spindel Eye Associates" className="max-h-9 w-full object-contain" />
+          <img src={SPINDEL_LOGO_URL} alt="Spindel Eye Associates" className="max-h-[3.15rem] w-full object-contain" />
         </motion.div>
         
         <div className="flex-1 flex items-center gap-3">

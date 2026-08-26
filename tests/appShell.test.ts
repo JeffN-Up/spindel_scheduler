@@ -18,5 +18,8 @@ assert.match(app, /Doctor Schedule Automation/, 'admin shell should expose docto
 assert.match(app, /handleDoctorScheduleUpload/, 'admin shell should handle doctor schedule CSV uploads');
 assert.match(app, /my-day-date-tab-active/, 'selected My Day date tab should have a dedicated high-contrast class');
 assert.match(css, /\.brand-main \.my-day-date-tab-active[\s\S]*color:\s*#ffffff\s*!important/, 'selected My Day date tab text should stay visible on dark brand background');
+assert.match(app, /nav-logo-lockup/, 'top navigation logo should have a stable dedicated class');
+assert.match(app, /h-\[4\.2rem\] w-\[15\.4rem\]/, 'top navigation logo container should be 40 percent larger than the prior 3rem by 11rem size');
+assert.match(app, /max-h-\[3\.15rem\]/, 'top navigation logo image should scale up by 40 percent from the prior max height');
 
 console.log('app shell tests passed');
