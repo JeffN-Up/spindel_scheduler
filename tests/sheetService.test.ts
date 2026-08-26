@@ -38,6 +38,7 @@ const compactRows: string[][] = [
   ['', '8/10', '', '', '8/11', '', '', '8/12', '', '', '8/13', '', '', '8/14', '', '', '8/15', '', ''],
   ['DSJ', '7:45a', '4:45p', 'W', 'LASIK', '', '', '', '', 'DR', '7:45a', '4:45p', 'D', '', '', 'REQ', '', '', ''],
   ['JC', '7:45a', '4:45p', 'D', '12:30p', '4:45p', 'D', '7:45a', '7:45p', 'W', '7:45a', '4:45p', 'D', '7:30a', '4:30p', 'D', '', '', ''],
+  ['SG', '', '', '', '', '', '', '7:45a', '2:00p', 'W', '', '', '', '', '', '', '', '', ''],
   ['DERRY', 'SW DS(p)', '', '', 'MF DS SW(p)', '', '', 'GS DR', '', '', 'GS SW', '', '', 'SW', '', '', 'SW', '', ''],
   ['Notes', 'SW 515', '', '', '', '', '', 'JO late night', '', '', '', '', '', 'SERUM TEARS', '', '', '', '', ''],
 ];
@@ -62,6 +63,6 @@ assert.deepEqual(
   'DERRY summary doctor cells should create doctor assignments for Tuesday'
 );
 assert.equal(compactMonday.locations.Floating.find(assignment => assignment.person === 'DERRY'), undefined);
-assert.equal(compactWednesday.notes, 'JO late night');
+assert.equal(compactWednesday.notes, 'JO late night; SG until 2:00p');
 
 console.log('sheetService parser regression tests passed');
