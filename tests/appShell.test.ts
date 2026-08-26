@@ -14,5 +14,7 @@ assert.doesNotMatch(app, /data\.map\(withCurrentWeekDate\)/, 'live sheet dates s
 assert.ok(existsSync(join(root, 'public/spindel-eye-associates-logo.jpg')), 'public logo asset should exist');
 assert.match(app, /my-day-doctor-badge/, 'My Day doctor initials should use a dedicated visible badge class');
 assert.match(css, /\.my-day-doctor-badge[\s\S]*color:\s*#ffffff\s*!important/, 'My Day doctor badge text should stay white inside brand-main');
+assert.match(app, /Doctor Schedule Automation/, 'admin shell should expose doctor schedule import automation');
+assert.match(app, /handleDoctorScheduleUpload/, 'admin shell should handle doctor schedule CSV uploads');
 
 console.log('app shell tests passed');

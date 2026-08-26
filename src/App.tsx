@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LayoutDashboard, 
@@ -22,7 +22,8 @@ import {
   Trash2,
   MessageSquare,
   CheckCircle2,
-  Clock
+  Clock,
+  Upload
 } from 'lucide-react';
 import { db, auth, signOut, OperationType, handleFirestoreError } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -50,6 +51,11 @@ import {
 } from './services/technicianRosterService';
 import { DEFAULT_SHIFT, resolveShiftForAssignment, ShiftRule, SHIFT_RULES_STORAGE_KEY } from './services/shiftRuleService';
 import { getMyDaySummary } from './services/myDayService';
+import {
+  applyDoctorScheduleToWeek,
+  parseDoctorScheduleCsv,
+  type DoctorScheduleImportResult,
+} from './services/doctorScheduleImportService';
 
 // Dnd Kit
 import {
@@ -745,6 +751,8 @@ export default function App() {
       return [];
     }
   });
+  const [doctorScheduleImport, setDoctorScheduleImport] = useState<DoctorScheduleImportResult | null>(null);
+  const [doctorImportMessage, setDoctorImportMessage] = useState('');
 
   const adminUser = user?.email === 'jefchapin@gmail.com';
   const hasAccess = Boolean(user) || passwordUnlocked || techUnlocked;
@@ -980,6 +988,55 @@ export default function App() {
     setScheduleRequests(current =>
       current.map(request => request.id === requestId ? { ...request, status: 'done' } : request)
     );
+  };
+
+  const handleDoctorScheduleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    setError(null);
+    try {
+      const imported = parseDoctorScheduleCsv(await file.text());
+      setDoctorScheduleImport(imported);
+      setDoctorImportMessage(imported.entries.length
+        ? `Ready to apply ${imported.entries.length} day${imported.entries.length === 1 ? '' : 's'} of doctor coverage.`
+        : 'No doctor schedule rows were found in that upload.'
+      );
+    } catch (err) {
+      setDoctorScheduleImport(null);
+      setDoctorImportMessage('');
+      setError(err instanceof Error ? err.message : 'Failed to read doctor schedule upload.');
+    }
+  };
+
+  const applyDoctorScheduleImport = async () => {
+    if (!doctorScheduleImport || !doctorScheduleImport.entries.length) return;
+
+    setError(null);
+    try {
+      const merge = applyDoctorScheduleToWeek(allSchedules, doctorScheduleImport.entries);
+      setAllSchedules(merge.schedules);
+      setSchedule(merge.schedules[selectedDayIdx] || merge.schedules[0]);
+
+      if (user) {
+        await Promise.all(merge.updatedDayIndexes.map(dayIndex => persistDaySchedule(merge.schedules[dayIndex])));
+        await addLog('DOCTOR_SCHEDULE_IMPORT', 'Imported doctor schedule coverage', {
+          daysUpdated: merge.updatedDayIndexes.length,
+          appliedAssignments: merge.appliedAssignments,
+          unmatchedDates: merge.unmatchedDates,
+        });
+      }
+
+      const skipped = merge.unmatchedDates.length
+        ? ` ${merge.unmatchedDates.length} uploaded date${merge.unmatchedDates.length === 1 ? '' : 's'} did not match this selected week.`
+        : '';
+      setDoctorImportMessage(
+        `Applied ${merge.appliedAssignments} doctor assignment${merge.appliedAssignments === 1 ? '' : 's'} to ${merge.updatedDayIndexes.length} day${merge.updatedDayIndexes.length === 1 ? '' : 's'}.${skipped}`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to apply doctor schedule import.');
+    }
   };
 
   const addShiftRule = (event: FormEvent<HTMLFormElement>) => {
@@ -1545,6 +1602,7 @@ export default function App() {
   const allTechNames = Object.keys(recentTechnicianRoster).sort();
   const myDaySchedule = allSchedules[selectedDayIdx] || schedule;
   const myDaySummary = selectedTech ? getMyDaySummary(myDaySchedule, selectedTech) : null;
+  const doctorImportPreview = doctorScheduleImport?.entries.slice(0, 4) || [];
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] font-sans selection:bg-white/20">
@@ -1849,6 +1907,73 @@ export default function App() {
                       </button>
                     </div>
                   ))}
+                </div>
+
+                <div className="rounded-2xl border border-[#dce1eb] bg-[#f7f8fb] p-4 space-y-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-bold text-[#243078]">Doctor Schedule Automation</h3>
+                      <p className="text-xs text-[#667085] mt-1">Upload the doctor schedule CSV, confirm the preview, then apply it to this week.</p>
+                    </div>
+                    <label className="brand-primary cursor-pointer px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      Upload CSV
+                      <input
+                        type="file"
+                        accept=".csv,text/csv"
+                        onChange={handleDoctorScheduleUpload}
+                        className="sr-only"
+                      />
+                    </label>
+                  </div>
+
+                  {doctorImportMessage && (
+                    <div className="text-xs font-semibold text-[#243078] bg-white border border-[#dce1eb] rounded-xl px-3 py-2">
+                      {doctorImportMessage}
+                    </div>
+                  )}
+
+                  {doctorScheduleImport?.warnings.length ? (
+                    <div className="space-y-1">
+                      {doctorScheduleImport.warnings.slice(0, 3).map(warning => (
+                        <div key={warning} className="flex items-start gap-2 text-xs text-amber-700">
+                          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                          <span>{warning}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {doctorImportPreview.length > 0 && (
+                    <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                      {doctorImportPreview.map(entry => {
+                        const doctorCount = Object.values(entry.locations).reduce((sum, assignments) => sum + assignments.length, 0);
+                        const summary = Object.entries(entry.locations)
+                          .filter(([, assignments]) => assignments.length > 0)
+                          .map(([location, assignments]) => `${location}: ${assignments.map(assignment => assignment.status ? `${assignment.person}(${assignment.status})` : assignment.person).join(' ')}`)
+                          .join(' • ');
+
+                        return (
+                          <div key={`${entry.date}-${entry.dayName}`} className="bg-white border border-[#dce1eb] rounded-xl p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="text-xs font-black text-[#243078]">{entry.dayName || 'Schedule day'} {entry.date}</span>
+                              <span className="text-[0.6rem] font-black text-[#258c3b] uppercase tracking-widest">{doctorCount} doctors</span>
+                            </div>
+                            <p className="mt-1 text-xs text-[#667085] break-words">{summary || 'No doctors listed for office coverage.'}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={applyDoctorScheduleImport}
+                    disabled={!doctorScheduleImport?.entries.length}
+                    className="w-full bg-[#243078] text-white px-4 py-3 rounded-xl text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#258c3b] transition-colors"
+                  >
+                    Apply Doctors To Main Schedule
+                  </button>
                 </div>
               </div>
             )}
