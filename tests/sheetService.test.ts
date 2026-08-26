@@ -63,6 +63,6 @@ assert.deepEqual(
   'DERRY summary doctor cells should create doctor assignments for Tuesday'
 );
 assert.equal(compactMonday.locations.Floating.find(assignment => assignment.person === 'DERRY'), undefined);
-assert.equal(compactWednesday.notes, 'JO late night; SG until 2:00p');
+assert.equal(compactWednesday.notes, 'JO late night');
 
 console.log('sheetService parser regression tests passed');

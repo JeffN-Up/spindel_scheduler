@@ -2088,11 +2088,11 @@ export default function App() {
                         </div>
                       </div>
 
-                      {(myDaySummary.assignment.status || myDaySummary.day.notes) && (
+                      {(myDaySummary.assignment.status || myDaySummary.notes) && (
                         <div className="mt-5 rounded-2xl border border-[#dce1eb] bg-[#fffdf5] p-5">
                           <div className="text-[0.6rem] font-black uppercase tracking-widest text-[#667085]">Notes</div>
                           {myDaySummary.assignment.status && <p className="mt-3 text-sm font-semibold text-[#243078]">{myDaySummary.assignment.status}</p>}
-                          {myDaySummary.day.notes && <p className="mt-2 text-sm text-[#667085]">{myDaySummary.day.notes}</p>}
+                          {myDaySummary.notes && <p className="mt-2 text-sm text-[#667085]">{myDaySummary.notes}</p>}
                         </div>
                       )}
                     </section>

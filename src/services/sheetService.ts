@@ -64,46 +64,6 @@ const isTime = (value: string): boolean => {
   return /^(?:\d{1,2})(?::\d{2})?\s*(?:a|am|p|pm)?$/.test(val);
 };
 
-const DEFAULT_END_TIME_MINUTES = 16 * 60 + 45;
-const EARLY_DEPARTURE_EXCLUDED_LOCATIONS = new Set(['Off', 'Floating']);
-
-const parseTimeToMinutes = (value: string): number | null => {
-  const match = normalize(value).toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(a|am|p|pm)$/);
-  if (!match) return null;
-
-  let hours = Number(match[1]);
-  const minutes = match[2] ? Number(match[2]) : 0;
-  const meridiem = match[3][0];
-
-  if (hours > 12 || minutes > 59) return null;
-  if (meridiem === 'p' && hours !== 12) hours += 12;
-  if (meridiem === 'a' && hours === 12) hours = 0;
-
-  return hours * 60 + minutes;
-};
-
-const appendNote = (existing: string, note: string): string => {
-  const current = normalize(existing);
-  if (!current) return note;
-  if (current.toLowerCase().includes(note.toLowerCase())) return current;
-  return `${current}; ${note}`;
-};
-
-const applyEarlyDepartureNotes = (daySchedule: SheetDaySchedule): void => {
-  for (const [locationId, assignments] of Object.entries(daySchedule.locations)) {
-    if (EARLY_DEPARTURE_EXCLUDED_LOCATIONS.has(locationId)) continue;
-
-    for (const assignment of assignments) {
-      if (assignment.isDoctor || !assignment.endTime) continue;
-
-      const endMinutes = parseTimeToMinutes(assignment.endTime);
-      if (endMinutes !== null && endMinutes < DEFAULT_END_TIME_MINUTES) {
-        daySchedule.notes = appendNote(daySchedule.notes || '', `${assignment.person} until ${assignment.endTime}`);
-      }
-    }
-  }
-};
-
 const getRoleSection = (value: string): RoleHint | undefined => {
   const label = normalizeCode(value);
   if (/^(DOCTOR|DOCTORS|MD|MDS)$/.test(label)) return 'Doctor';
@@ -284,7 +244,6 @@ export function parseSheetRows(data: string[][]): SheetDaySchedule[] {
       }
     }
 
-    applyEarlyDepartureNotes(daySchedule);
     schedules.push(daySchedule);
   }
 
