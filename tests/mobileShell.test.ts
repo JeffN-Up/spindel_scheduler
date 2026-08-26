@@ -6,6 +6,7 @@ const root = process.cwd();
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const css = readFileSync(join(root, 'src/index.css'), 'utf8');
 const main = readFileSync(join(root, 'src/main.tsx'), 'utf8');
+const viteConfig = readFileSync(join(root, 'vite.config.ts'), 'utf8');
 const manifestPath = join(root, 'public/manifest.webmanifest');
 const serviceWorkerPath = join(root, 'public/sw.js');
 
@@ -30,5 +31,7 @@ assert.match(main, /serviceWorker\.register/, 'production app should register th
 assert.match(css, /touch-action:\s*manipulation/, 'controls should avoid mobile tap delay');
 assert.match(css, /-webkit-overflow-scrolling:\s*touch/, 'scroll areas should keep iOS momentum scrolling');
 assert.match(css, /safe-area-inset-bottom/, 'mobile layout should respect bottom safe area');
+assert.match(viteConfig, /entryFileNames:\s*'assets\/\[name\]\.js'/, 'Pages build should use a stable entry asset URL');
+assert.match(viteConfig, /assetFileNames:\s*'assets\/\[name\]\[extname\]'/, 'Pages build should use stable CSS asset URLs');
 
 console.log('mobile shell tests passed');
