@@ -1927,7 +1927,7 @@ export default function App() {
                           <div className="text-[0.6rem] font-black uppercase tracking-widest text-[#667085]">Doctors</div>
                           <div className="mt-4 flex flex-wrap gap-2">
                             {myDaySummary.doctors.length ? myDaySummary.doctors.map(person => (
-                              <span key={`${person.person}-${person.startTime}`} className={`px-3 py-2 rounded-xl text-sm font-black ${person.person === 'JC' ? 'bg-white border border-red-500 text-red-600' : 'bg-[#243078] text-white'}`}>
+                              <span key={`${person.person}-${person.startTime}`} className={`px-3 py-2 rounded-xl text-sm font-black ${person.person === 'JC' ? 'bg-white border border-red-500 text-red-600' : 'my-day-doctor-badge'}`}>
                                 {person.person}
                               </span>
                             )) : (

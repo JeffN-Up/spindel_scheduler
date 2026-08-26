@@ -84,6 +84,11 @@ h1, h2, h3, h4, h5, h6 {
 .brand-main [class*="hover:bg-white/"]:hover { background-color: #e7ecf4 !important; }
 .brand-main .brand-primary { background-color: #258c3b !important; color: #ffffff !important; }
 .brand-main .brand-doctor { background-color: #243078 !important; color: #ffffff !important; }
+.brand-main .my-day-doctor-badge {
+  background-color: #243078 !important;
+  border: 1px solid #243078 !important;
+  color: #ffffff !important;
+}
 .brand-main .schedule-card {
   background: #ffffff;
   border: 1px solid #bcc7d8;
