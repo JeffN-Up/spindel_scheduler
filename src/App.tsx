@@ -1678,6 +1678,18 @@ export default function App() {
             </div>
           </button>
 
+          <a
+            href={LIVE_SPREADSHEET_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open original source spreadsheet"
+            className="top-nav-source-spreadsheet-button inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-bold text-[#243078] shadow-sm hover:bg-[#e9edf5] transition-colors"
+            title="Open original source spreadsheet"
+          >
+            <LinkIcon className="w-4 h-4" />
+            <span className="hidden lg:inline">Source</span>
+          </a>
+
           {isAdmin && (
             <button 
               onClick={() => setShowLogs(true)}
@@ -1991,8 +2003,8 @@ export default function App() {
                   onClick={() => setSelectedDayIdx(dIdx)}
                   className={`px-4 py-3 rounded-2xl border text-left transition-all ${selectedDayIdx === dIdx ? 'my-day-date-tab-active bg-[#243078] border-[#243078] text-white shadow-md' : 'bg-white border-[#dce1eb] text-[#243078] hover:border-[#258c3b]'}`}
                 >
-                  <div className="text-[0.55rem] font-black uppercase tracking-widest opacity-75">{day.dayName}</div>
-                  <div className="text-sm font-bold">{day.date}</div>
+                  <div className={`text-[0.55rem] font-black uppercase tracking-widest opacity-75 ${selectedDayIdx === dIdx ? 'my-day-date-tab-text' : ''}`}>{day.dayName}</div>
+                  <div className={`text-sm font-bold ${selectedDayIdx === dIdx ? 'my-day-date-tab-text' : ''}`}>{day.date}</div>
                 </button>
               ))}
             </div>
@@ -2040,7 +2052,7 @@ export default function App() {
                             target="_blank"
                             rel="noreferrer"
                             href={googleMapsDirectionsUrl(office.mapQuery, selectedProfile?.homeAddress)}
-                            className="my-day-directions-button inline-flex items-center justify-center gap-2 rounded-full bg-[#243078] px-5 py-3 text-sm font-bold text-white hover:bg-[#258c3b] transition-all"
+                            className="my-day-directions-button inline-flex items-center justify-center gap-2 rounded-full bg-[#243078] px-5 py-3 text-sm font-bold hover:bg-[#258c3b] transition-all"
                           >
                             <Navigation className="w-4 h-4" />
                             Directions

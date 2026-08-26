@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'spindel-scheduler-v1';
+const CACHE_VERSION = 'spindel-scheduler-v2';
 
 self.addEventListener('install', (event) => {
   const scopePath = new URL(self.registration.scope).pathname;
@@ -27,15 +27,22 @@ self.addEventListener('fetch', (event) => {
 
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  if (request.mode === 'navigate') {
+  const networkFirst = () =>
+    fetch(request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+        return response;
+      })
+      .catch(() => caches.match(request).then((cached) => cached || caches.match(new URL(self.registration.scope).pathname)));
+
+  if (
+    request.mode === 'navigate' ||
+    request.destination === 'script' ||
+    request.destination === 'style'
+  ) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match(new URL(self.registration.scope).pathname)))
+      networkFirst()
     );
     return;
   }

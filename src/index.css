@@ -90,12 +90,19 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff !important;
 }
 .brand-main .my-day-date-tab-active,
-.brand-main .my-day-date-tab-active * {
+.brand-main .my-day-date-tab-active *,
+.brand-main .my-day-date-tab-text {
   color: #ffffff !important;
 }
 .brand-main .my-day-directions-button,
 .brand-main .my-day-directions-button * {
   color: #ffffff !important;
+}
+.brand-main .my-day-directions-button {
+  background-color: #243078 !important;
+}
+.brand-main .my-day-directions-button:hover {
+  background-color: #258c3b !important;
 }
 .brand-main .schedule-card {
   background: #ffffff;

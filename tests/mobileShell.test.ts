@@ -9,6 +9,7 @@ const main = readFileSync(join(root, 'src/main.tsx'), 'utf8');
 const viteConfig = readFileSync(join(root, 'vite.config.ts'), 'utf8');
 const manifestPath = join(root, 'public/manifest.webmanifest');
 const serviceWorkerPath = join(root, 'public/sw.js');
+const serviceWorker = readFileSync(serviceWorkerPath, 'utf8');
 
 assert.match(html, /viewport-fit=cover/, 'viewport should opt into iOS safe-area layout');
 assert.match(html, /name="theme-color"/, 'theme color should be declared for Android browser chrome');
@@ -33,5 +34,8 @@ assert.match(css, /-webkit-overflow-scrolling:\s*touch/, 'scroll areas should ke
 assert.match(css, /safe-area-inset-bottom/, 'mobile layout should respect bottom safe area');
 assert.match(viteConfig, /entryFileNames:\s*'assets\/\[name\]\.js'/, 'Pages build should use a stable entry asset URL');
 assert.match(viteConfig, /assetFileNames:\s*'assets\/\[name\]\[extname\]'/, 'Pages build should use stable CSS asset URLs');
+assert.match(serviceWorker, /spindel-scheduler-v2/, 'service worker cache version should be bumped when stable asset names are used');
+assert.match(serviceWorker, /request\.destination === 'script'/, 'service worker should fetch scripts from the network first');
+assert.match(serviceWorker, /request\.destination === 'style'/, 'service worker should fetch styles from the network first');
 
 console.log('mobile shell tests passed');
