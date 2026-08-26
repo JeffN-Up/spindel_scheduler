@@ -1723,9 +1723,10 @@ export default function App() {
             <div className="flex items-center gap-4 text-[var(--text-muted)] font-mono text-xs">
               <button
                 onClick={() => window.open(LIVE_SPREADSHEET_URL, '_blank')}
-                className="flex items-center gap-2 hover:text-[var(--text)] transition-colors"
+                className="source-spreadsheet-button inline-flex items-center gap-2 rounded-full border border-[#c5cedd] bg-[#f7f9fc] px-3 py-1.5 text-[#243078] hover:border-[#258c3b] hover:text-[#258c3b] transition-colors"
+                title="Open original Google Sheet source"
               >
-                <LinkIcon className="w-3 h-3" /> Live Spreadsheet
+                <LinkIcon className="w-3 h-3" /> Source Spreadsheet
               </button>
               <span className="w-1 h-1 bg-[var(--border)] rounded-full" />
               <span className="flex items-center gap-2 tracking-widest">{currentTime.toLocaleTimeString([], { hour12: false })}</span>

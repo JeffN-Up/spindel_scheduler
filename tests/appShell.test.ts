@@ -10,6 +10,8 @@ assert.match(app, /CURRENT_SCHEDULE_GID = '2063860995'/, 'current schedule gid s
 assert.match(app, /LIVE_SPREADSHEET_URL/, 'live spreadsheet URL should be a shared app constant');
 assert.match(app, /spindel-eye-associates-logo\.jpg/, 'Spindel logo should be incorporated into the app shell');
 assert.match(app, /Live Spreadsheet/, 'header should always include a live spreadsheet link');
+assert.match(app, /source-spreadsheet-button/, 'admin and technician views should include a dedicated source spreadsheet button');
+assert.match(app, /Source Spreadsheet/, 'source spreadsheet button should use clear wording');
 assert.doesNotMatch(app, /data\.map\(withCurrentWeekDate\)/, 'live sheet dates should not be rewritten to the current week');
 assert.ok(existsSync(join(root, 'public/spindel-eye-associates-logo.jpg')), 'public logo asset should exist');
 assert.match(app, /my-day-doctor-badge/, 'My Day doctor initials should use a dedicated visible badge class');
