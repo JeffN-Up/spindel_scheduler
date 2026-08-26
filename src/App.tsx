@@ -1988,9 +1988,9 @@ export default function App() {
                   key={`${day.dayName}-${day.date}`}
                   type="button"
                   onClick={() => setSelectedDayIdx(dIdx)}
-                  className={`px-4 py-3 rounded-2xl border text-left transition-all ${selectedDayIdx === dIdx ? 'bg-[#243078] border-[#243078] text-white shadow-md' : 'bg-white border-[#dce1eb] text-[#243078] hover:border-[#258c3b]'}`}
+                  className={`px-4 py-3 rounded-2xl border text-left transition-all ${selectedDayIdx === dIdx ? 'my-day-date-tab-active bg-[#243078] border-[#243078] text-white shadow-md' : 'bg-white border-[#dce1eb] text-[#243078] hover:border-[#258c3b]'}`}
                 >
-                  <div className="text-[0.55rem] font-black uppercase tracking-widest opacity-60">{day.dayName}</div>
+                  <div className="text-[0.55rem] font-black uppercase tracking-widest opacity-75">{day.dayName}</div>
                   <div className="text-sm font-bold">{day.date}</div>
                 </button>
               ))}
