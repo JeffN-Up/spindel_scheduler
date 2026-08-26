@@ -20,6 +20,7 @@ assert.match(app, /my-day-date-tab-active/, 'selected My Day date tab should hav
 assert.match(css, /\.brand-main \.my-day-date-tab-active[\s\S]*color:\s*#ffffff\s*!important/, 'selected My Day date tab text should stay visible on dark brand background');
 assert.match(app, /nav-logo-lockup/, 'top navigation logo should have a stable dedicated class');
 assert.match(app, /h-\[4\.2rem\] w-\[15\.4rem\]/, 'top navigation logo container should be 40 percent larger than the prior 3rem by 11rem size');
-assert.match(app, /max-h-\[3\.15rem\]/, 'top navigation logo image should scale up by 40 percent from the prior max height');
+assert.match(app, /px-1\.5/, 'top navigation logo should use tight horizontal padding');
+assert.match(app, /max-h-\[3\.75rem\]/, 'top navigation logo image should fill more of the larger container');
 
 console.log('app shell tests passed');
