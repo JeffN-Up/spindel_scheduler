@@ -73,4 +73,24 @@ const currentRoster = buildRecentTechnicianRoster([
 assert.deepEqual(Object.keys(currentRoster), ['DSJ', 'JC', 'SC']);
 assert.equal(currentRoster.DSJ.refractingNote, 'Does not refract yet');
 
+const historicalSchedule = [{
+  date: '8/24/26',
+  dayName: 'Monday',
+  locations: {
+    Derry: [
+      { person: 'AB', role: 'Technician', startTime: '', endTime: '', location: 'Derry', isDoctor: false },
+      { person: 'DS_T', role: 'Technician', startTime: '', endTime: '', location: 'Derry', isDoctor: false },
+      { person: 'DR', role: 'Doctor', startTime: '', endTime: '', location: 'Derry', isDoctor: true },
+    ],
+  },
+}];
+const october = new Date('2026-10-09T12:00:00');
+assert.deepEqual(Object.keys(buildRecentTechnicianRoster(historicalSchedule, roster, {
+  today: october,
+})), [], 'admin recent roster should still exclude old schedules');
+assert.deepEqual(Object.keys(buildRecentTechnicianRoster(historicalSchedule, roster, {
+  today: october,
+  includeHistorical: true,
+})), ['AB', 'DSJ'], 'initials picker must retain technicians after syncing an older sheet');
+
 console.log('technician roster/request tests passed');

@@ -65,7 +65,7 @@ const hasRosterActivity = (assignment: { startTime?: string; endTime?: string; l
 export function buildRecentTechnicianRoster(
   schedules: SheetDaySchedule[],
   knownTechnicians: Record<string, Technician>,
-  options: { today?: Date; doctorIds?: string[]; lookbackDays?: number } = {}
+  options: { today?: Date; doctorIds?: string[]; lookbackDays?: number; includeHistorical?: boolean } = {}
 ): Record<string, Technician> {
   const today = options.today || new Date();
   const lookbackDays = options.lookbackDays ?? 14;
@@ -73,7 +73,7 @@ export function buildRecentTechnicianRoster(
 
   for (const daySchedule of schedules) {
     const rosterDate = parseRosterDate(daySchedule.date, today);
-    if (rosterDate) {
+    if (rosterDate && !options.includeHistorical) {
       const ageDays = (today.getTime() - rosterDate.getTime()) / (1000 * 60 * 60 * 24);
       if (ageDays > lookbackDays) continue;
     }

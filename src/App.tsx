@@ -1599,7 +1599,12 @@ export default function App() {
         .map(initials => [initials, technicians[initials]])
     ),
   };
-  const allTechNames = Object.keys(recentTechnicianRoster).sort();
+  // The picker follows the viewed sheet, even when its dates are older than
+  // the admin roster's lookback window. Sync must not erase the login choices.
+  const allTechNames = Array.from(new Set([
+    ...Object.keys(buildRecentTechnicianRoster(allSchedules, technicians, { includeHistorical: true })),
+    ...Object.keys(recentTechnicianRoster),
+  ])).sort();
   const myDaySchedule = allSchedules[selectedDayIdx] || schedule;
   const myDaySummary = selectedTech ? getMyDaySummary(myDaySchedule, selectedTech) : null;
   const doctorImportPreview = doctorScheduleImport?.entries.slice(0, 4) || [];
