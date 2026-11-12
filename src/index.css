@@ -89,10 +89,13 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #243078 !important;
   color: #ffffff !important;
 }
-.brand-main .my-day-date-tab-active,
-.brand-main .my-day-date-tab-active *,
-.brand-main .my-day-date-tab-text {
-  color: #ffffff !important;
+.my-day-date-tab {
+  background-color: var(--my-day-card-bg, white);
+  color: var(--text);
+  border-color: var(--border);
+}
+.my-day-date-tab-active {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text);
 }
 .brand-main .my-day-directions-button,
 .brand-main .my-day-directions-button * {
@@ -254,5 +257,51 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .mobile-myday-picker button {
     min-width: 5.75rem;
     scroll-snap-align: start;
+  }
+}
+
+[data-theme='midnight'] {
+  color-scheme: dark;
+  --my-day-card-bg: #1e293b;
+}
+
+[data-theme='midnight'] .brand-main {
+  color: var(--text);
+}
+
+[data-theme='midnight'] :is(.brand-main, .brand-surface) :is(
+  .bg-white, [class*="bg-white/"], [class*="bg-[#f"], [class*="bg-[#e9edf5]"], .schedule-card
+),
+[data-theme='midnight'] .brand-surface {
+  background-color: #172033 !important;
+}
+
+[data-theme='midnight'] :is(.brand-main, .brand-surface) :is(
+  [class*="text-white/"], [class*="text-[#243078]"], [class*="text-[#3f3f3f]"],
+  [class*="text-[#667085]"], [class*="text-[#98a2b3]"]
+),
+[data-theme='midnight'] .brand-main .text-white,
+[data-theme='midnight'] .brand-surface {
+  color: #e2e8f0 !important;
+}
+
+[data-theme='midnight'] :is(.brand-main, .brand-surface) :is(
+  [class*="border-[#dc"], [class*="border-white/"], .schedule-card, input, select, textarea
+) {
+  border-color: #475569 !important;
+}
+
+[data-theme='midnight'] :is(.brand-main, .brand-surface) :is(input, select, textarea) {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme='midnight'] .mobile-day-picker {
+  background: var(--bg);
+}
+
+@media (max-width: 767px) {
+  .brand-nav button.schedule-assistant-toggle {
+    display: none;
   }
 }

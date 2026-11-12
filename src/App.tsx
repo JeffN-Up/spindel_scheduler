@@ -11,6 +11,8 @@ import {
   Link as LinkIcon,
   AlertCircle,
   Sparkles,
+  Moon,
+  Sun,
   History,
   Terminal,
   GripVertical,
@@ -706,7 +708,11 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [editingAssignment, setEditingAssignment] = useState<{ assignment: SheetAssignment, locationId: string, index: number } | null>(null);
-  const [theme, setTheme] = useState('brand');
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return THEMES.find(option => option.id === savedTheme)?.id ?? 'brand';
+  });
+  const nightMode = theme === 'midnight';
   const [showGemini, setShowGemini] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
@@ -1675,12 +1681,23 @@ export default function App() {
           <button 
             onClick={() => setShowGemini(true)}
             aria-label="Schedule assistant"
-              className={`p-2 md:p-3 rounded-full transition-all group relative ${showGemini ? 'text-[#243078] bg-white' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+            className={`schedule-assistant-toggle p-2 md:p-3 rounded-full transition-all group relative ${showGemini ? 'text-[#243078] bg-white' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
           >
             <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
             <div className="hidden md:block absolute top-full mt-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white text-[#243078] text-[0.6rem] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
               Schedule assistant
             </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme(nightMode ? 'brand' : 'midnight')}
+            aria-label="Night mode"
+            aria-pressed={nightMode}
+            title="Night mode"
+            className="p-2 md:p-3 rounded-full text-white/70 hover:text-white hover:bg-white/10"
+          >
+            {nightMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
 
           <a
@@ -2001,17 +2018,28 @@ export default function App() {
         {viewMode === 'myday' ? (
           <div className="flex-1 space-y-6">
             <div className="mobile-myday-picker flex flex-wrap gap-2">
-              {allSchedules.map((day, dIdx) => (
-                <button
-                  key={`${day.dayName}-${day.date}`}
-                  type="button"
-                  onClick={() => setSelectedDayIdx(dIdx)}
-                  className={`px-4 py-3 rounded-2xl border text-left transition-all ${selectedDayIdx === dIdx ? 'my-day-date-tab-active bg-[#243078] border-[#243078] text-white shadow-md' : 'bg-white border-[#dce1eb] text-[#243078] hover:border-[#258c3b]'}`}
-                >
-                  <div className={`text-[0.55rem] font-black uppercase tracking-widest opacity-75 ${selectedDayIdx === dIdx ? 'my-day-date-tab-text' : ''}`}>{day.dayName}</div>
-                  <div className={`text-sm font-bold ${selectedDayIdx === dIdx ? 'my-day-date-tab-text' : ''}`}>{day.date}</div>
-                </button>
-              ))}
+              {allSchedules.map((day, dIdx) => {
+                const summary = selectedTech ? getMyDaySummary(day, selectedTech) : null;
+                const location = LOCATIONS.find(item => item.id === summary?.locationId);
+                const isSelected = selectedDayIdx === dIdx;
+                return (
+                  <button
+                    key={`${day.dayName}-${day.date}`}
+                    type="button"
+                    onClick={() => setSelectedDayIdx(dIdx)}
+                    aria-pressed={isSelected}
+                    style={location && {
+                      borderColor: location.color,
+                      backgroundColor: `color-mix(in srgb, ${location.color} 23%, var(--my-day-card-bg, white))`,
+                    }}
+                    className={`my-day-date-tab px-4 py-3 rounded-2xl border text-left transition-all ${isSelected ? 'my-day-date-tab-active' : ''}`}
+                  >
+                    <div className="text-[0.55rem] font-black uppercase tracking-widest">{day.dayName}</div>
+                    <div className="text-sm font-bold">{day.date}</div>
+                    {summary && <div className="text-xs mt-1">{summary.locationId}</div>}
+                  </button>
+                );
+              })}
             </div>
 
             {!selectedTech ? (

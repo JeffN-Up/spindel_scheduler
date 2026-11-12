@@ -19,9 +19,10 @@ assert.match(app, /my-day-doctor-badge/, 'My Day doctor initials should use a de
 assert.match(css, /\.my-day-doctor-badge[\s\S]*color:\s*#ffffff\s*!important/, 'My Day doctor badge text should stay white inside brand-main');
 assert.match(app, /Doctor Schedule Automation/, 'admin shell should expose doctor schedule import automation');
 assert.match(app, /handleDoctorScheduleUpload/, 'admin shell should handle doctor schedule CSV uploads');
-assert.match(app, /my-day-date-tab-active/, 'selected My Day date tab should have a dedicated high-contrast class');
-assert.match(app, /my-day-date-tab-text/, 'selected My Day date label should have an explicit visible text class');
-assert.match(css, /\.brand-main \.my-day-date-tab-active[\s\S]*color:\s*#ffffff\s*!important/, 'selected My Day date tab text should stay visible on dark brand background');
+assert.match(app, /aria-label="Night mode"\s+aria-pressed=\{nightMode\}/, 'night mode should expose its toggle state');
+assert.match(app, /getMyDaySummary\(day, selectedTech\)/, 'My Day cards should use each day’s technician assignment');
+assert.match(app, /borderColor: location.color/, 'My Day cards should use the schedule location color');
+assert.match(css, /\.my-day-date-tab-active\s*\{\s*box-shadow:/, 'the selected date should be distinguishable across location colors');
 assert.match(app, /my-day-directions-button/, 'My Day directions button should have a dedicated high-contrast class');
 assert.doesNotMatch(app, /my-day-directions-button[^`"]*text-white/, 'My Day directions button should not rely on text-white inside brand-main');
 assert.match(css, /\.brand-main \.my-day-directions-button[\s\S]*color:\s*#ffffff\s*!important/, 'My Day directions button text should stay visible on dark brand background');
