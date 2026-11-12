@@ -6,11 +6,11 @@ export interface Coordinates {
 }
 
 export const OFFICE_COORDINATES: Record<string, Coordinates> = {
-  Derry: { lat: 42.8802, lng: -71.3271 },
-  Londonderry: { lat: 42.8624, lng: -71.3519 },
-  Windham: { lat: 42.8006, lng: -71.3029 },
-  Bedford: { lat: 42.9429, lng: -71.4735 },
-  Raymond: { lat: 43.0364, lng: -71.1853 },
+  Derry: { lat: 42.8975, lng: -71.32336 },
+  Londonderry: { lat: 42.8674, lng: -71.34716 },
+  Windham: { lat: 42.80202, lng: -71.3029 },
+  Bedford: { lat: 42.95626, lng: -71.47868 },
+  Raymond: { lat: 43.02554, lng: -71.16777 },
 };
 
 const EARTH_RADIUS_MILES = 3958.8;

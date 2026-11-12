@@ -9,8 +9,8 @@ export interface OfficeLocation {
 export const OFFICE_LOCATIONS: OfficeLocation[] = [
   { id: 'Derry', code: 'D', color: '#ff4d4d', targetTechs: 8, mapQuery: '6 Tsienneto Road Suite 101, Derry, NH 03038' },
   { id: 'Londonderry', code: 'LD', color: '#4d94ff', targetTechs: 2, mapQuery: '50 Michels Way Suite 104, Londonderry, NH 03053' },
-  { id: 'Windham', code: 'W', color: '#4dff88', targetTechs: 4, mapQuery: '49 Range Road Suite 106, Windham, NH 03087' },
-  { id: 'Bedford', code: 'B', color: '#ff4db8', targetTechs: 2, mapQuery: '166 South River Road, Bedford, NH' },
+  { id: 'Windham', code: 'W', color: '#4dff88', targetTechs: 4, mapQuery: '7 Indian Rock Road, Suite E, Windham, NH 03087' },
+  { id: 'Bedford', code: 'B', color: '#ff4db8', targetTechs: 2, mapQuery: '166 South River Road, Bedford, NH 03110' },
   { id: 'Raymond', code: 'R', color: '#b84dff', targetTechs: 2, mapQuery: '6 Old Fremont Road Suite 1, Raymond, NH 03077' },
 ];
 

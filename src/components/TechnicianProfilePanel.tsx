@@ -1,4 +1,6 @@
-import { MouseEvent, PointerEvent, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { circleMarker, latLngBounds, map, tileLayer, type CircleMarker, type Map as LeafletMap } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { motion } from 'motion/react';
 import { ArrowDown, ArrowUp, Crosshair, Heart, MapPin, Navigation, Save, X } from 'lucide-react';
 import { OFFICE_LOCATIONS, appleMapsDirectionsUrl, googleMapsDirectionsUrl } from '../constants/locations';
@@ -16,44 +18,6 @@ interface Props {
   profile?: TechnicianProfile;
   onClose: () => void;
   onSave: (profile: TechnicianProfile) => Promise<void>;
-}
-
-const MAP_BOUNDS = {
-  north: 43.08,
-  south: 42.18,
-  west: -71.82,
-  east: -70.98,
-};
-
-const AREA_MAP_URL = 'https://www.google.com/maps?q=42.63,-71.36&z=9&output=embed';
-
-const toRadians = (degrees: number) => degrees * Math.PI / 180;
-
-const toDegrees = (radians: number) => radians * 180 / Math.PI;
-
-const latToMercator = (lat: number) => Math.log(Math.tan(Math.PI / 4 + toRadians(lat) / 2));
-
-const mercatorToLat = (value: number) => toDegrees(2 * Math.atan(Math.exp(value)) - Math.PI / 2);
-
-function pinToPosition(pin: Coordinates) {
-  const north = latToMercator(MAP_BOUNDS.north);
-  const south = latToMercator(MAP_BOUNDS.south);
-  return {
-    left: `${((pin.lng - MAP_BOUNDS.west) / (MAP_BOUNDS.east - MAP_BOUNDS.west)) * 100}%`,
-    top: `${((north - latToMercator(pin.lat)) / (north - south)) * 100}%`,
-  };
-}
-
-function positionToPin(event: MouseEvent<HTMLDivElement> | PointerEvent<HTMLDivElement>): Coordinates {
-  const rect = event.currentTarget.getBoundingClientRect();
-  const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-  const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
-  const north = latToMercator(MAP_BOUNDS.north);
-  const south = latToMercator(MAP_BOUNDS.south);
-  return {
-    lat: mercatorToLat(north - (y * (north - south))),
-    lng: MAP_BOUNDS.west + (x * (MAP_BOUNDS.east - MAP_BOUNDS.west)),
-  };
 }
 
 export function TechnicianProfilePanel({ initials, ownerUid, profile, onClose, onSave }: Props) {
@@ -90,11 +54,11 @@ export function TechnicianProfilePanel({ initials, ownerUid, profile, onClose, o
     }
   };
 
-  const updateHomePin = (pin: Coordinates) => {
+  const updateHomePin = useCallback((pin: Coordinates) => {
     const roundedPin = { lat: Number(pin.lat.toFixed(5)), lng: Number(pin.lng.toFixed(5)) };
     setHomePin(roundedPin);
     setMiles(calculateOfficeCommutes(roundedPin));
-  };
+  }, []);
 
   const useCurrentLocation = () => {
     navigator.geolocation?.getCurrentPosition(position => {
@@ -108,9 +72,57 @@ export function TechnicianProfilePanel({ initials, ownerUid, profile, onClose, o
     setMiles(calculateOfficeCommutes(homePin));
   };
 
-  const mapUrl = homePin
-    ? `https://www.google.com/maps?q=${homePin.lat},${homePin.lng}&z=10&output=embed`
-    : AREA_MAP_URL;
+  const mapElement = useRef<HTMLDivElement>(null);
+  const officeMap = useRef<LeafletMap | null>(null);
+  const homeMarker = useRef<CircleMarker | null>(null);
+
+  useEffect(() => {
+    if (!mapElement.current) return;
+
+    const view = map(mapElement.current, { scrollWheelZoom: false });
+    officeMap.current = view;
+    tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(view);
+
+    const bounds = latLngBounds([]);
+    for (const office of OFFICE_LOCATIONS) {
+      const { lat, lng } = OFFICE_COORDINATES[office.id];
+      bounds.extend([lat, lng]);
+      circleMarker([lat, lng], {
+        radius: 7,
+        color: '#111827',
+        fillColor: office.color,
+        fillOpacity: 1,
+      }).bindTooltip(office.code, { permanent: true, direction: 'top' }).addTo(view);
+    }
+    view.fitBounds(bounds, { padding: [24, 28], maxZoom: 12 });
+    view.on('click', ({ latlng }) => updateHomePin(latlng));
+
+    return () => {
+      view.remove();
+      officeMap.current = null;
+      homeMarker.current = null;
+    };
+  }, [updateHomePin]);
+
+  useEffect(() => {
+    const view = officeMap.current;
+    if (!view) return;
+    homeMarker.current?.remove();
+    homeMarker.current = null;
+    if (!homePin) return;
+
+    const position: [number, number] = [homePin.lat, homePin.lng];
+    homeMarker.current = circleMarker(position, {
+      radius: 8,
+      color: '#ffffff',
+      fillColor: '#dc2626',
+      fillOpacity: 1,
+    }).bindTooltip('Home', { permanent: true, direction: 'top' }).addTo(view);
+    if (!view.getBounds().contains(position)) view.panTo(position);
+  }, [homePin]);
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
@@ -136,40 +148,11 @@ export function TechnicianProfilePanel({ initials, ownerUid, profile, onClose, o
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_.85fr] gap-4 mb-8">
           <div
-            onClick={event => updateHomePin(positionToPin(event))}
-            onPointerMove={event => {
-              if (event.buttons === 1) updateHomePin(positionToPin(event));
-            }}
-            className="relative h-72 overflow-hidden rounded-2xl border border-white/10 bg-[#152033] cursor-crosshair"
-          >
-            <iframe
-              title="Spindel office area map"
-              src={mapUrl}
-              className="absolute inset-0 h-full w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              style={{ pointerEvents: 'none' }}
-            />
-            <div className="absolute inset-0 bg-black/5" />
-            {OFFICE_LOCATIONS.map(office => {
-              const position = pinToPosition(OFFICE_COORDINATES[office.id]);
-              return (
-                <div key={office.id} className="absolute -translate-x-1/2 -translate-y-1/2" style={position}>
-                  <div className="px-2 py-1 rounded-lg text-[0.52rem] font-black shadow-lg border border-white/20" style={{ backgroundColor: office.color, color: '#111827' }}>
-                    {office.code}
-                  </div>
-                </div>
-              );
-            })}
-            {homePin && (
-              <div className="absolute -translate-x-1/2 -translate-y-full" style={pinToPosition(homePin)}>
-                <div className="flex flex-col items-center">
-                  <MapPin className="w-8 h-8 text-white drop-shadow-[0_6px_14px_rgba(0,0,0,.6)]" fill="#ff4d4d" />
-                  <span className="mt-1 px-2 py-0.5 rounded bg-black/50 text-[0.5rem] font-bold">HOME</span>
-                </div>
-              </div>
-            )}
-          </div>
+            ref={mapElement}
+            role="region"
+            aria-label="Spindel office area map"
+            className="relative isolate z-0 h-72 overflow-hidden rounded-2xl border border-white/10 bg-[#152033]"
+          />
 
           <div className="space-y-3">
             <button onClick={useCurrentLocation} className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-3 text-xs font-bold">

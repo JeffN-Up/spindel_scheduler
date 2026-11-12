@@ -5,10 +5,9 @@ import { join } from 'node:path';
 const root = process.cwd();
 const panel = readFileSync(join(root, 'src/components/TechnicianProfilePanel.tsx'), 'utf8');
 
-assert.match(panel, /https:\/\/www\.google\.com\/maps/, 'profile map should use a real Google Maps embed');
-assert.match(panel, /output=embed/, 'profile map should render an embedded map view');
-assert.match(panel, /title="Spindel office area map"/, 'embedded map should be labelled for accessibility');
-assert.match(panel, /pointerEvents:\s*'none'/, 'drop-pin layer should stay clickable over the embedded map');
-assert.match(panel, /OFFICE_COORDINATES/, 'office markers should stay aligned to known office coordinates');
+assert.match(panel, /tile\.openstreetmap\.org/, 'profile map should render street tiles');
+assert.match(panel, /aria-label="Spindel office area map"/, 'the map should be labelled for accessibility');
+assert.match(panel, /view\.on\('click', \(\{ latlng \}\) => updateHomePin\(latlng\)\)/, 'home pins should use coordinates from the visible map');
+assert.match(panel, /circleMarker\(\[lat, lng\]/, 'office markers should be rendered on the same map as the streets');
 
 console.log('technician profile panel tests passed');
