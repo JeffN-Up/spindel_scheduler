@@ -109,10 +109,10 @@ GitHub Pages:
 The repository includes a GitHub Pages workflow that builds `main` with `BASE_PATH=/spindel_scheduler/` and publishes `dist`. After the first successful Pages deployment, the preview URL should be:
 
 ```text
-https://down2pound.github.io/spindel_scheduler/
+https://jeffn-up.github.io/spindel_scheduler/
 ```
 
-Add `down2pound.github.io` to Firebase Authentication authorized domains before testing Google sign-in from this preview.
+Add `jeffn-up.github.io` to Firebase Authentication authorized domains before testing Google sign-in from this preview.
 
 Firebase Hosting:
 

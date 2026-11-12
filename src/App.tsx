@@ -158,7 +158,7 @@ const weekLabel = (weekOffset: number) => {
 };
 
 const SPREADSHEET_ID = '10MTeD3grwqFyr4Odug3VQAih-8115_YVYlBNne2HzA0';
-const CURRENT_SCHEDULE_GID = '2063860995';
+const CURRENT_SCHEDULE_GID = '881529662';
 const LIVE_SPREADSHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit?gid=${CURRENT_SCHEDULE_GID}#gid=${CURRENT_SCHEDULE_GID}`;
 const SHEET_EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit?usp=sharing`;
 const SPINDEL_LOGO_URL = `${import.meta.env.BASE_URL}spindel-eye-associates-logo.jpg`;
