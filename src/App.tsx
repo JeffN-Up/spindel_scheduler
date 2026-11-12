@@ -2204,17 +2204,12 @@ export default function App() {
                 </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                 {allSchedules.map((day, dIdx) => {
-                  // Find tech in any location for this day
-                  let techAssignment: SheetAssignment | null = null;
-                  let techLoc = '';
-                  
-                  Object.entries(day.locations).forEach(([locId, assignments]) => {
-                    const found = (assignments as SheetAssignment[]).find(a => canonicalizeTechnicianInitials(a.person) === selectedTech);
-                    if (found) {
-                      techAssignment = found;
-                      techLoc = locId;
-                    }
-                  });
+                  const summary = getMyDaySummary(day, selectedTech);
+                  const techAssignment = summary?.assignment;
+                  const techLoc = summary?.locationId ?? '';
+                  const teammateInitials = [...new Set(
+                    summary?.technicians.map(person => canonicalizeTechnicianInitials(person.person))
+                  )];
 
                   return (
                     <motion.div 
@@ -2260,6 +2255,25 @@ export default function App() {
                               </div>
                             </div>
                           </div>
+
+                          {techLoc !== 'Off' && (
+                            <section className="p-4 bg-white/[.03] border border-white/10 rounded-2xl">
+                              <h4 className="text-[0.6rem] font-black uppercase tracking-widest text-white/60">
+                                Technicians with you
+                              </h4>
+                              {teammateInitials.length ? (
+                                <ul className="mt-2 flex flex-wrap gap-1.5">
+                                  {teammateInitials.map(initials => (
+                                    <li key={initials} className="rounded-lg border border-white/10 px-2 py-1 text-xs font-bold">
+                                      {initials}
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="mt-2 text-xs text-white/60">No other technicians listed.</p>
+                              )}
+                            </section>
+                          )}
 
                           {OFFICE_LOCATIONS.some(office => office.id === techLoc) && (
                             <div className="p-4 bg-white/[.03] border border-white/10 rounded-2xl space-y-3">
